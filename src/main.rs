@@ -1,5 +1,6 @@
 mod network;
 mod core;
+mod rich_text;
 
 use std::thread;
 use std::time::Duration;
