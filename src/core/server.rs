@@ -1,9 +1,11 @@
+use std::fmt::format;
 use crate::network::packet::{Packet, TestPacket};
 use std::io::Read;
 use std::net::{TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::thread::JoinHandle;
+use crate::logger::string::Logger;
 
 static SERVER_STARTED: AtomicBool = AtomicBool::new(false);
 
@@ -31,13 +33,13 @@ fn new_connection(mut stream: TcpStream) {
             let n = stream.read(&mut buf).expect("Server failed to read from stream");
 
             if n == 0 {
-                println!("Connection to {} was closed", stream.peer_addr().expect("Failed to read address from stream"));
+                format!("Connection to {} was closed", stream.peer_addr().expect("Failed to read address from stream")).error();
                 break;
             }
 
             let boxed = buf[..n].to_vec().into_boxed_slice();
 
-            println!("{}", &*TestPacket::interpret(Box::from(&boxed[2..])).unwrap());
+            format!("{}", &*TestPacket::interpret(Box::from(&boxed[2..])).unwrap()).info();
         }
     });
 }

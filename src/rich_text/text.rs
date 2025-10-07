@@ -13,7 +13,7 @@ pub enum Format {
     BOLD,
     ITALIC,
     DIM,
-    Underline
+    UNDERLINE
 }
 
 const RESET: &str = "\x1b[0m";
@@ -42,6 +42,6 @@ fn get_string_for_format(format: Format) -> &'static str {
         Format::BOLD => "\x1b[1m",
         Format::DIM => "\x1b[2m",
         Format::ITALIC => "\x1b[3m",
-        Format::Underline => "\x1b[4m"
+        Format::UNDERLINE => "\x1b[4m"
     }
 }
