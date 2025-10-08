@@ -3,7 +3,6 @@ mod core;
 mod rich_text;
 mod logger;
 
-use std::fmt::format;
 use std::thread;
 use std::time::Duration;
 use crate::core::client;

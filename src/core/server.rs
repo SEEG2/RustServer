@@ -15,12 +15,23 @@ pub fn start(address: &str, port: u16) -> JoinHandle<()>{
 
     thread::spawn(move || {
         let address_and_port_combined = &format!("{}:{}", address, port);
-        let listener = TcpListener::bind(address_and_port_combined)
-            .expect(&format!("Server failed to bind TCP listener to {}", address_and_port_combined));
+        let listener = match TcpListener::bind(address_and_port_combined) {
+            Ok(s) => s,
+            Err(e) => {
+                format!("Server failed to bind TCP listener to {}: {}", address_and_port_combined, e).error();
+                return
+            }
+        };
         SERVER_STARTED.store(true, Ordering::SeqCst);
-
+        
         for stream in listener.incoming() {
-            new_connection(stream.expect("Incoming server stream is invalid"));
+            new_connection(match stream {
+                Ok(s) => s,
+                Err(e) => {
+                    format!("Incoming server stream is invalid: {}", e).error();
+                    return
+                }
+            });
         }
     })
 }
@@ -30,10 +41,23 @@ fn new_connection(mut stream: TcpStream) {
     thread::spawn(move || {
         loop {
             let mut buf = [0; 8 * BUFFER_SIZE_BYTE];
-            let n = stream.read(&mut buf).expect("Server failed to read from stream");
-
+            let n = match stream.read(&mut buf) {
+                Ok(s) => s,
+                Err(e) => {
+                    format!("Server failed to read from stream: {}", e).error();
+                    break
+                }
+            };
+            
             if n == 0 {
-                format!("Connection to {} was closed", stream.peer_addr().expect("Failed to read address from stream")).error();
+                format!("Connection to {} was closed", match stream.peer_addr() {
+                    Ok(s) => s,
+                    Err(e) => {
+                        format!("Failed to read address from stream: {}", e).error();
+                        break
+                    }
+                    
+                }).info();
                 break;
             }
 
