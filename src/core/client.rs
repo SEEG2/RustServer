@@ -19,7 +19,6 @@ pub fn run_new(port: u16, time_sec: u64) -> JoinHandle<()> {
             }
         };
         
-        
         loop {
             let packet = match TestPacket::create("H".to_string()) {
                 Ok(p) => p,

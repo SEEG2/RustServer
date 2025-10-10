@@ -24,9 +24,28 @@ impl Packet for TestPacket {
         } else {
             match String::from_utf8(Vec::from(content)) {
                 Ok(result) => Ok(result.to_string()) ,
-                Err(_) => Err("Invalid UTF-8"),
+                Err(_) => Err("Invalid UTF-8")
             }
         }
+    }
+}
+
+pub struct KeepAlivePacket;
+impl Packet for KeepAlivePacket {
+    type InterpretType = u32;
+    const PACKET_ID: u16 = 1;
+
+    fn create(content: Self::InterpretType) -> Result<Box<[u8]>, &'static str> {
+        Ok(create_raw(Self::PACKET_ID, &content.to_le_bytes()))
+    }
+
+    fn interpret(content: Box<[u8]>) -> Result<Self::InterpretType, &'static str> {
+        let arr: [u8; 4] = match content.as_ref().try_into() {
+            Ok(a) => a,
+            Err(_) => return Err("Content is not the right size be interpreted as this packet")
+        };
+        
+        Ok(u32::from_le_bytes(arr))
     }
 }
 

@@ -2,6 +2,7 @@ mod network;
 mod core;
 mod rich_text;
 mod logger;
+mod util;
 
 use std::thread;
 use std::time::Duration;
